@@ -1,5 +1,7 @@
-import { ReactNode, useState } from 'react'
-import NavBar from './components/header'
+import { ReactNode, useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux';
+import { changeNavBarBgColor } from './reducers/headerEventsOnScroll/changeNavBarBgOnScrollSlice';
+import { stickySubHeader } from './reducers/headerEventsOnScroll/stickySubHeaderToTheTopSlice';
 
 interface Props {
   children?:ReactNode
@@ -7,17 +9,28 @@ interface Props {
 }
 
 function App({children}:Props) {
-  const [isStickyNavBar, setStickyNavBar] = useState(false);
+  const dispatch = useDispatch();
+  const [isStickyNavBar, setStickyNavBar] = useState<boolean>(false);
+  const [isSubHeaderPin, setSubHeaderPin] = useState<boolean>(false);
 
-  const changeNavBarBgColor = (event: {currentTarget: { scrollTop : number }}) => {
-    event.currentTarget.scrollTop > 0 ? setStickyNavBar(true) : setStickyNavBar(false);
-  };
+  useEffect(() => {
+    const pageScroll = () => {
+      window.scrollY > 0 ? setStickyNavBar(true) : setStickyNavBar(false);
+      window.scrollY > 76 ? setSubHeaderPin(true) : setSubHeaderPin(false);
+    }
+    window.addEventListener("scroll", pageScroll);
+
+    return ()=> {
+      window.removeEventListener("scroll", pageScroll);
+    }
+  },[])
+  useEffect(() => {
+    dispatch(changeNavBarBgColor(isStickyNavBar));
+    dispatch(stickySubHeader(isSubHeaderPin));
+  },[isStickyNavBar, isSubHeaderPin])
 
   return (
-    <div onScroll={changeNavBarBgColor} className='relative bg-[#141414] text-white w-full h-screen overflow-x-hidden overflow-y-auto'>
-      <header>
-        <NavBar changeBgOnScroll={isStickyNavBar}/>
-      </header>
+    <div className={`relative bg-[#141414] text-white w-full min-h-screen overflow-hidden`}>
       <main>{children}</main>
       <footer></footer>
     </div>
@@ -25,3 +38,4 @@ function App({children}:Props) {
 }
 
 export default App
+
