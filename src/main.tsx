@@ -8,13 +8,11 @@ import App from './App'
 import router from './router'
 import { store } from './store'
 import './index.css'
-
+//
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <Provider store={store}>
-      <App>
-        <RouterProvider router={router} />
-      </App>
+      <App><RouterProvider router={router} /></App>
     </Provider>
   </React.StrictMode>
 )
