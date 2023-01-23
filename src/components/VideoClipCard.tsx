@@ -1,26 +1,66 @@
-import { useState } from "react"
-import { Link, useLocation  } from "react-router-dom";
-import PortalModal from "./modal";
+import { ForwardedRef, forwardRef, ReactNode, useEffect, useState } from "react"
+import { useSearchParams } from "react-router-dom";
+import { PortalModal } from "./modal";
 import { useQueryParams } from "../utilities";
 import { HiCheck, HiOutlineThumbUp, HiOutlineChevronDown, HiOutlinePlus } from "react-icons/hi";
 import { IoIosPlay } from "react-icons/io";
+import { MdArrowDropDown } from "react-icons/md";
+interface ButtonProps {
+    className: string,
+    title:string,
+    children: ReactNode,
+    onClick?: any,
+}
+interface VideoClipCardProps {
+    content: any,
+    className?:string
+    // parentUlElementHoverEffect:boolean,
+}
 
-const imageCards = `https://occ-0-3740-778.1.nflxso.net/dnm/api/v6/6gmvu2hxdfnQ55LZZjyzYR4kzGk/AAAABSGm6NitMQJUjqUJIINTDxKvFFU4glshq-AXs-UA2R1Gh_35ldJh0lGB7vgAr6AkRJMVuVnFKf66AiQjYojbm89eapvumIPtWZk.webp?r=937`
+const ButtonIconUi = ({className, title, children, onClick }:ButtonProps) => {
+    const [isHover, setHover] = useState(false);
+    return(
+        <div className="relative flex flex-col justify-center items-center">
+            {(isHover && title) && <div className="absolute flex flex-col justify-center items-center bottom-10 w-auto">
+                <span className="text-center shadow-lg whitespace-nowrap bg-gray-100 text-gray-800 text-base font-medium px-4 py-1.5 rounded-sm -mb-3.5">{title}</span>
+                <MdArrowDropDown className='w-8 h-8 text-gray-100 shadow-lg'/>
+                </div>}
 
-const VideoClipCardSummary = ({content}:any) => {
+            <button onClick={onClick} onMouseEnter={ () =>setHover(true)} onMouseLeave={() => setHover(false)} type="button" className={`flex justify-center items-center border-2 ${className} p-1.5 rounded-full cursor-pointer focus:border-transparent focus:ring-4 focus:ring-offset-0 focus:ring-gray-200 hover:border-gray-200`} title={title}>
+            {children}
+            </button>
+        </div>
+        
+    )
+}
+const VideoClipCardSummary = ({content, className}:VideoClipCardProps) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activateModalAndUpdateURLParams = () => {
+        searchParams.set(`trackId`,`${content.track_id}`)
+        setSearchParams(searchParams)
+    }
+    // useEffect(() => {
+    //     console.log("SearchParams:", searchParams.get('genreType'));
+    // })
     return (
-        <div className="absolute transform -translate-y-56 left-auto right-auto rounded-lg bg-[#141414] shadow-2xl min-w-[380px] max-w-sm h-auto cursor-pointer z-10">
+            <div className={`absolute z-20 -top-20 left-auto right-auto rounded-lg bg-[#141414] shadow-2xl min-w-[380px] max-w-sm h-auto cursor-pointer ${className}`}>
                 <img className="w-full object-cover object-center rounded-t-lg" src={content.image} alt="Movie trailer" />
                 <div className="w-full flex flex-col space-y-2.5 p-5 text-sm">
-                    <div className="w-full flex flex-row justify-between z-20">
-                        <div className="flex flex-row space-x-2">
-                            <span className="w-full flex justify-center items-center border-2 p-1.5 bg-white rounded-full"><IoIosPlay className="text-black w-6 h-6" /></span>
-                            <span className="w-full flex justify-center items-center border-2 p-1.5 rounded-full border-gray-400"><HiCheck className="text-gray-300 w-6 h-6" /></span>
-                            <span className="w-full flex justify-center items-center border-2 p-1.5 rounded-full border-gray-400"><HiOutlineThumbUp className="text-gray-300 w-6 h-6" /></span>
+                    <div className="w-full flex flex-row justify-between z-10">
+                        <div className="flex flex-row space-x-3">
+                            <ButtonIconUi className="bg-white p-0.5" title='' >
+                                <IoIosPlay className="text-black w-8 h-8" />
+                            </ButtonIconUi>
+                            <ButtonIconUi className="border-gray-400" title="Add to List">
+                                <HiCheck className="text-gray-300 w-6 h-6" />
+                            </ButtonIconUi>
+                            <ButtonIconUi className="border-gray-400" title="I like this">
+                                <HiOutlineThumbUp className="text-gray-300 w-6 h-6" />
+                            </ButtonIconUi>
                         </div>
-                        <Link to={`?trackId=${content.track_id}`}>
-                        <span className="flex justify-center items-center border-2 rounded-full border-gray-400 p-2.5 bg-inherit"><HiOutlineChevronDown/></span>
-                        </Link>
+                        <ButtonIconUi onClick={activateModalAndUpdateURLParams} className="border-gray-400 bg-inherit p-2" title="More Info">
+                            <HiOutlineChevronDown className="w-5 h-5"/>
+                        </ButtonIconUi>
                     </div>
                     <div className="flex flex-row justify-start items-center flex-wrap gap-4">
                         <span className="font-medium text-green-500">{content.match}</span>
@@ -36,14 +76,14 @@ const VideoClipCardSummary = ({content}:any) => {
     )
 
 }
-const VideoClipCardDetail = ({content}:any) => {
+const VideoClipCardDetail = ({content}:VideoClipCardProps) => {
     return(
-        <div className="relative w-full flex flex-col text-white text-sm">
-            <div className="relative w-full h-auto rounded-sm cursor-pointer">
+        <div className="relative w-full flex flex-col text-white text-sm transition-all delay-500 duration-1000">
+            <div className="relative w-full h-[85vh] overflow-hidden rounded-sm cursor-pointer">
                 <div className="absolute w-full h-[30%] right-0 left-0 bottom-0 bg-gradient-to-t
               from-[#141414] to-transparent">
                 </div>
-               <img className="w-full object-cover object-center" src={content.image_webp} alt={content.title}/>
+               <img className="w-full h-auto object-cover object-center" src={content.image_webp} alt={content.title}/>
             </div>
             <div className="relative w-full flex flex-col gap-10 px-16 py-5">
                 <div className="w-full flex flex-row gap-10">
@@ -120,22 +160,19 @@ const VideoClipCardDetail = ({content}:any) => {
         </div>
     )
 }
-const VideoClipCard = ({content}:any) => {
+const VideoClipCard = forwardRef(({content }:VideoClipCardProps, ref:ForwardedRef<HTMLDivElement>) => {
     const [isHover, setHover] = useState(false);
     let queryParams = useQueryParams();
-    const searchParam = useLocation ();
-    console.log("Routing:", searchParam);
-
   return (
     <>
-        <li onMouseEnter={ () =>setHover(true)} onMouseLeave={() => setHover(false)} className="relative">
-            <div className="w-full h-auto min-w-[250px] max-w-sm rounded-sm cursor-pointer">
-                <img className="object-cover object-center rounded-sm" src={content.image} alt="Movie trailer" />
-            </div>
-            {isHover && <VideoClipCardSummary content={content}/>}
-        </li>
-        {(queryParams.get('trackId') == content.track_id) && <PortalModal><VideoClipCardDetail content={content}/></PortalModal>}
+    <div ref={ref} onMouseEnter={ () =>setHover(true)} onMouseLeave={() => setHover(false)} className="snap-start">
+        <div className="w-full h-auto min-w-[240px] max-w-sm rounded-md cursor-pointer overflow-hidden">
+            <img className="object-cover object-center" src={content.image} alt="Movie trailer" />
+        </div>
+        {isHover && <VideoClipCardSummary className="transition-all delay-500 duration-1000" content={content}/>}
+    </div>
+    {(queryParams.get('trackId') == content.track_id) && <PortalModal><VideoClipCardDetail content={content}/></PortalModal>}
     </>
   )
-}
+});
 export default VideoClipCard
