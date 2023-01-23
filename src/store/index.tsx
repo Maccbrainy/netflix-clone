@@ -1,8 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query'
+import filterViewTypeReducer from '../reducers/filterViewOptionSlice'
+import changeNavBarBgColorReducer from '../reducers/headerEventsOnScroll/changeNavBarBgOnScrollSlice'
+import stickySubHeaderToTheTopReducer from '../reducers/headerEventsOnScroll/stickySubHeaderToTheTopSlice'
 
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    changeNavBarBgOnScroll: changeNavBarBgColorReducer,
+    stickySubHeaderToTheTop: stickySubHeaderToTheTopReducer,
+    filterViewOption: filterViewTypeReducer
+  },
 })
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
