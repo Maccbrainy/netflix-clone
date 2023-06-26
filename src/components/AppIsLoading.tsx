@@ -1,11 +1,8 @@
-import { useState } from "react";
-
 export default function(){
     const uiStyle = `h-40 bg-[#333] min-w-[240px] max-w-sm rounded-md overflow-hidden`
     let uiStylesArray = [] as string[];
     for (let index = 0; index < 8; index++) {
         uiStylesArray[index] = uiStyle;
-        return uiStylesArray;
     }
     return(
         <section className="animate-pulse relative w-full flex flex-col justify-center">
